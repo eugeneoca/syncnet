@@ -17,7 +17,6 @@ class Client():
         self.host_address = self.get_host()
 
     def run(self):
-        # TEST
         # --- Layout ---
         # Find server by sending REG signal (Registration)
         # Once received an ACK signal, store server socket then do handshake (Verification)
