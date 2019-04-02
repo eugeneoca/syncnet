@@ -28,14 +28,22 @@ class Client():
         pass
 
     def detect_server(self, port):
-        self.client_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.client_sock.bind((self.host_address, self.port))
+        try:
+            self.client_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.client_sock.bind((self.host_address, self.port))
+        except Exception as error:
+            self.client_log('Existing server or client using the socket.')
+            exit(0)
         self.client_log("Client running at "+self.host_address+":"+str(self.port))
         print("Looking for active server...")
-        
-
-
+        base_address = self.get_base_address()
+        for last_octet in range(1,255):
+            candidate_address = base_address+"."+str(last_octet)
+            self.client_sock.sendto("REG".encode(), (candidate_address, self.port))
         return 0
+
+    def get_base_address(self):
+        return '.'.join(self.host_address.split('.')[:-1])
 
     def set_name(self, name):
         self.name = name
