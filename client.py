@@ -41,7 +41,7 @@ class Client():
             candidate_address = base_address+"."+str(last_octet)
             self.client_sock.sendto("REG".encode(), (candidate_address, self.port))
         return 0
-        
+
     def get_base_address(self):
         return '.'.join(self.host_address.split('.')[:-1])
 
