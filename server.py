@@ -1,7 +1,7 @@
 import socket
 import threading
 import os
-from time import sleep
+from time import sleep, time
 
 class Server():
 
@@ -10,6 +10,8 @@ class Server():
     client_listener_sock = ""
     port = 2000
     o_clients = []
+
+    ttl = 0
 
     def __init__(self, name = "Network-Based Server", port=2000):
         self.set_name(name)
@@ -22,9 +24,11 @@ class Server():
         # Run Client Listener Thread
         #   - If client received, throw separate thread
         # Run Dead Client Listener Thread
+        self.ttl = time()
 
         self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server_sock.bind((self.host_address, self.port))
+        self.server_sock.setblocking(False)
 
         s_Listener = threading.Thread(target=self.server_listener)
         s_Listener.daemon = True
@@ -42,8 +46,15 @@ class Server():
 
     def server_listener(self):
         while True:
-            data, address = self.server_sock.recvfrom(1024)
+
+            if (time()-self.ttl)>2:
+                self.check_connection()
+                self.ttl = time()
+
             try:
+
+                data, address = self.server_sock.recvfrom(1024)
+
                 # Register new client
                 if data.decode("UTF-8")=="REG" and (address not in self.o_clients):
                     self.o_clients.append(address)
@@ -54,8 +65,23 @@ class Server():
                 if data.decode("UTF-8")=="URG" and (address in self.o_clients):
                     self.o_clients.remove(address)
 
-            except Exception as error:
-                self.server_log(error)
+            except:
+                pass
+
+    def check_connection(self):
+        # Check connection and remake client list
+        local_clients = []
+        for client in self.o_clients:
+            self.server_sock.sendto("CHK".encode(), client)
+            try:
+                data, address = self.server_sock.recvfrom(1024)
+                if data.decode("UTF-8")=="LIV":
+                    local_clients.append(address)
+            except:
+                pass
+        
+        self.o_clients = local_clients
+
 
     def set_name(self, name):
         self.name = name
