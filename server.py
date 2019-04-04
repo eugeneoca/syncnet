@@ -23,6 +23,9 @@ class Server():
         #   - If client received, throw separate thread
         # Run Dead Client Listener Thread
 
+        self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.server_sock.bind((self.host_address, self.port))
+
         s_Listener = threading.Thread(target=self.server_listener)
         s_Listener.daemon = True
         s_Listener.start()
@@ -38,8 +41,6 @@ class Server():
             sleep(1) # Update screen every second only
 
     def server_listener(self):
-        self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.server_sock.bind((self.host_address, self.port))
         while True:
             data, address = self.server_sock.recvfrom(1024)
             try:

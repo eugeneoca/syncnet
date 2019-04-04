@@ -15,6 +15,8 @@ class Client():
     server_address = ""
     server_port = 2000
 
+    ttl = 0
+
     def __init__(self, name = "Client", port = 2000):
 
         self.server_port = port
@@ -39,11 +41,30 @@ class Client():
         # Monitor external and internal immediate change signals (Monitoring)
         # For internal changes, transmit broadcast signal through the server (Synchronization)
 
+        self.ttl = time()
+        new_connection = True
         while True:
+
             if self.server_address=="":
                 self.server_address = self.detect_server(self.server_port)
+            
+            if new_connection==True and self.server_address is not "":
+                self.ttl = time()
+                new_connection = False
+
+            # TTL Check
+            if (time()-self.ttl)>10 and self.server_address is not "":
+                print(str(self.server_address) + " died. Waiting for new server...")
+                self.server_address=""
+
             else:
-                pass
+                try:
+                    data, _ = self.client_sock.recvfrom(1024)
+                    if data.decode("UTF-8")=="CHK":
+                        self.client_sock.sendto("LIV".encode(), self.server_address)
+                        self.ttl = time()
+                except:
+                    pass
 
     def detect_server(self, port):
         base_address = self.get_base_address()
