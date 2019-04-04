@@ -1,7 +1,7 @@
 import socket
 import threading
 import os
-from time import sleep
+from time import sleep, time
 import random
 
 class Client():
@@ -13,7 +13,6 @@ class Client():
     client_port = 2001
     
     server_address = ""
-    server_sock = ""
     server_port = 2000
 
     def __init__(self, name = "Client", port = 2000):
@@ -39,12 +38,12 @@ class Client():
         # Once received an ACK signal, store server socket then do handshake (Verification) - DONE
         # Monitor external and internal immediate change signals (Monitoring)
         # For internal changes, transmit broadcast signal through the server (Synchronization)
-        print("Looking for active server...")
-        while self.server_sock=="":
-            self.server_sock = self.detect_server(self.server_port)
-        
-        self.server_address = self.server_sock[0]
-        print(self.server_sock)
+
+        while True:
+            if self.server_address=="":
+                self.server_address = self.detect_server(self.server_port)
+            else:
+                pass
 
     def detect_server(self, port):
         base_address = self.get_base_address()
