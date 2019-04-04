@@ -2,54 +2,64 @@ import socket
 import threading
 import os
 from time import sleep
+import random
 
 class Client():
 
     name = ""
-    host_address = ""
-    
-    port = 2000
+    client_address = ""
     o_clients = []
-    server_sock = ""
     client_sock = ""
+    client_port = 2001
+    
+    server_address = ""
+    server_sock = ""
+    server_port = 2000
 
-    def __init__(self, name = "Client", port=2000):
-        self.set_name(name)
-        self.set_port(port)
-        self.host_address = self.get_host()
+    def __init__(self, name = "Client", port = 2000):
+
+        port = random.randint(port+1, 5000) # Set random port
+        self.name = name
+        self.server_port
+        self.client_port = port
+        self.client_address = self.get_host()
 
     def run(self):
-        self.server_descriptor = self.detect_server(self.port)
+        try:
+            self.client_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.client_sock.bind((self.client_address, self.client_port))
+            self.client_sock.setblocking(False)
+        except:
+            self.client_log('Existing server or client using the socket.')
+            exit(0)
+        self.client_log("Client running at "+self.client_address+":"+str(self.client_port))
+
         # --- Layout ---
         # Find server by sending REG signal (Registration)
         # Once received an ACK signal, store server socket then do handshake (Verification)
         # Monitor external and internal immediate change signals (Monitoring)
         # For internal changes, transmit broadcast signal through the server (Synchronization)
+        print("Looking for active server...")
+        while self.server_address=="":
+            self.server_address = self.detect_server(self.server_port)
         pass
 
     def detect_server(self, port):
-        try:
-            self.client_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            self.client_sock.bind((self.host_address, self.port))
-        except Exception as error:
-            self.client_log('Existing server or client using the socket.')
-            exit(0)
-        self.client_log("Client running at "+self.host_address+":"+str(self.port))
-        print("Looking for active server...")
         base_address = self.get_base_address()
         for last_octet in range(1,255):
             candidate_address = base_address+"."+str(last_octet)
-            self.client_sock.sendto("REG".encode(), (candidate_address, self.port))
-        return 0
+            self.client_sock.sendto("REG".encode(), (candidate_address, port))
+            try:
+                data, _ = self.client_sock.recvfrom(1024)
+                if data.decode("UTF-8")=="ACK":
+                    print("Registered successfully on server "+candidate_address+":"+str(port))
+                    return candidate_address
+            except:
+                pass
+        return "" # Return NULL String
 
     def get_base_address(self):
-        return '.'.join(self.host_address.split('.')[:-1])
-
-    def set_name(self, name):
-        self.name = name
-
-    def set_port(self, port):
-        self.port = port
+        return '.'.join(self.client_address.split('.')[:-1])
 
     def get_host(self):
         return socket.gethostbyname(socket.gethostname())

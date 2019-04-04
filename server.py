@@ -23,9 +23,9 @@ class Server():
         #   - If client received, throw separate thread
         # Run Dead Client Listener Thread
 
-        c_Listener = threading.Thread(target=self.client_listener)
-        c_Listener.daemon = True
-        c_Listener.start()
+        s_Listener = threading.Thread(target=self.server_listener)
+        s_Listener.daemon = True
+        s_Listener.start()
 
         while True:
             self.clear_log()
@@ -37,15 +37,17 @@ class Server():
                 print(str(i)+"\t|\t"+client[0]+"\t|\t"+str(client[1]))
             sleep(1) # Update screen every second only
 
-    def client_listener(self):
-        self.client_listener_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.client_listener_sock.bind((self.host_address, self.port))
+    def server_listener(self):
+        self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.server_sock.bind((self.host_address, self.port))
         while True:
-            data, address = self.client_listener_sock.recvfrom(1024)
+            data, address = self.server_sock.recvfrom(1024)
             try:
                 # Register new client
                 if data.decode("UTF-8")=="REG" and (address not in self.o_clients):
                     self.o_clients.append(address)
+                    self.server_sock.sendto("ACK".encode(), address)
+
 
                 # Unregister client
                 if data.decode("UTF-8")=="URG" and (address in self.o_clients):
