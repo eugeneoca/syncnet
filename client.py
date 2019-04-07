@@ -1,5 +1,4 @@
 import socket
-import threading
 import os
 from time import sleep, time
 import random
@@ -14,6 +13,8 @@ class Client():
     
     server_address = ""
     server_port = 2000
+
+    finder_sock = ""
 
     ttl = 0
 
@@ -52,23 +53,22 @@ class Client():
                 self.ttl = time()
                 new_connection = False
 
+            try:
+                data, address = self.client_sock.recvfrom(1024)
+                if data.decode("UTF-8")=="CHK":
+                    self.client_sock.sendto("LIV".encode(), address)
+                    self.ttl = time()
+            except Exception as error:
+                print(error)
+            
             # TTL Check
-            """
-            if (time()-self.ttl)>5:
+            if (time()-self.ttl)>10 and self.server_address is not "":
                 print(str(self.server_address) + " died. Waiting for new server...")
                 self.server_address=""
                 new_connection = True
-            else:
-                try:
-                    data, address = self.client_sock.recvfrom(1024)
-                    if data.decode("UTF-8")=="CHK":
-                        self.client_sock.sendto("LIV".encode(), address)
-                        self.ttl = time()
-                except:
-                    pass
-            """
 
     def detect_server(self, port):
+
         base_address = self.get_base_address()
         for last_octet in range(0,255):
             candidate_address = base_address+"."+str(last_octet)

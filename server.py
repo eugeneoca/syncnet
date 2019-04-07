@@ -47,7 +47,7 @@ class Server():
     def server_listener(self):
         while True:
 
-            if (time()-self.ttl)>2:
+            if (time()-self.ttl)>1:
                 self.check_connection()
                 self.ttl = time()
 
