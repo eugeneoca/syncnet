@@ -60,7 +60,6 @@ class Server():
                     self.o_clients.append(address)
                     self.server_sock.sendto("ACK".encode(), address)
 
-
                 # Unregister client
                 if data.decode("UTF-8")=="URG" and (address in self.o_clients):
                     self.o_clients.remove(address)

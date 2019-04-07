@@ -52,7 +52,7 @@ class Client():
             if new_connection==True and self.server_address is not "":
                 self.ttl = time()
                 new_connection = False
-
+            """
             try:
                 data, address = self.client_sock.recvfrom(1024)
                 if data.decode("UTF-8")=="CHK":
@@ -66,6 +66,7 @@ class Client():
                 print(str(self.server_address) + " died. Waiting for new server...")
                 self.server_address=""
                 new_connection = True
+            """
 
     def detect_server(self, port):
 
