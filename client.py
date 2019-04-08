@@ -68,6 +68,7 @@ class Client():
         base_address = self.get_base_address()
         for last_octet in range(0,255):
             candidate_address = base_address+"."+str(last_octet)
+            
             try:
                 self.client_sock.sendto("REG".encode(), (candidate_address, port))
                 data, sck = self.client_sock.recvfrom(1024)
