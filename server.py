@@ -13,7 +13,7 @@ class Server():
 
     ttl = 0
 
-    def __init__(self, name = "Network-Based Server", port=2000):
+    def __init__(self, name = "Network-Based Server", port=5000):
         self.set_name(name)
         self.set_port(port)
         self.host_address = self.get_host()
@@ -41,7 +41,7 @@ class Server():
             print("-------------------------------------------------------------------------")
             print("ID\t|\tIP ADDRESS\t|\tPORT\t|\t DATABASE")
             for i,client in enumerate(self.o_clients):
-                print(str(i)+"\t|\t"+client[0]+"\t|\t"+str(client[1]))
+                print(str(i)+"\t|\t"+client[0]+"\t|\t"+str(client[1])+"\t|\t"+"{}")
             sleep(1) # Update screen every second only
 
     def server_listener(self):
@@ -102,5 +102,5 @@ class Server():
         print("["+self.name+"] "+message)
 
 if __name__ == "__main__":
-    server = Server("Syncnet Server", 2000)
+    server = Server("Syncnet Server", 5000)
     server.run()

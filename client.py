@@ -18,10 +18,10 @@ class Client():
 
     ttl = 0
 
-    def __init__(self, name = "Client", port = 2000):
+    def __init__(self, name = "Client", port = 5000):
 
         self.server_port = port
-        port = random.randint(port+1, 5000) # Set random port
+        port = random.randint(port+1, 10000) # Set random port
         self.name = name
         self.client_port = port
         self.client_address = self.get_host()
@@ -88,5 +88,5 @@ class Client():
         print("["+self.name+"] "+message)
 
 if __name__ == "__main__":
-    client = Client("Syncnet Client", 2000)
+    client = Client("Syncnet Client", 5000)
     client.run()
