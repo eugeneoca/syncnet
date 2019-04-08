@@ -68,7 +68,7 @@ class Client():
         base_address = self.get_base_address()
         for last_octet in range(0,255):
             candidate_address = base_address+"."+str(last_octet)
-            
+
             try:
                 self.client_sock.sendto("REG".encode(), (candidate_address, port))
                 data, sck = self.client_sock.recvfrom(1024)
@@ -83,7 +83,7 @@ class Client():
         return '.'.join(self.client_address.split('.')[:-1])
 
     def get_host(self):
-        return socket.gethostbyname(socket.gethostname())
+        return socket.gethostbyname(socket.getfqdn())
 
     def client_log(self, message):
         print("["+self.name+"] "+message)
