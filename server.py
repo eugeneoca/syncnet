@@ -83,7 +83,7 @@ class Server():
                     #print(error)
                     pass
         
-        self.o_clients = local_clients.copy()
+        self.o_clients = local_clients
 
 
     def set_name(self, name):
