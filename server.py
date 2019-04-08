@@ -39,7 +39,7 @@ class Server():
             self.server_log("Server running at "+self.host_address+":"+str(self.port))
             print("Active Clients: "+str(len(self.o_clients)))
             print("-------------------------------------------------------------------------")
-            print("ID\t|\tIP ADDRESS\t|\tPORT")
+            print("ID\t|\tIP ADDRESS\t|\tPORT\t|\t DATABASE")
             for i,client in enumerate(self.o_clients):
                 print(str(i)+"\t|\t"+client[0]+"\t|\t"+str(client[1]))
             sleep(1) # Update screen every second only
@@ -72,8 +72,8 @@ class Server():
         local_clients = []
         for client in self.o_clients:
             self.server_sock.sendto("CHK".encode(), client)
-            for t in range(10):
-                # Ten waits of activity
+            for t in range(20):
+                # Twenty waits of activity
                 try:
                     data, address = self.server_sock.recvfrom(100)
                     if data.decode("UTF-8")=="LIV":
