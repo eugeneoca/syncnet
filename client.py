@@ -68,8 +68,8 @@ class Client():
         base_address = self.get_base_address()
         for last_octet in range(0,255):
             candidate_address = base_address+"."+str(last_octet)
-            self.client_sock.sendto("REG".encode(), (candidate_address, port))
             try:
+                self.client_sock.sendto("REG".encode(), (candidate_address, port))
                 data, sck = self.client_sock.recvfrom(1024)
                 if data.decode("UTF-8")=="ACK":
                     print("Registered successfully on server "+sck[0]+":"+str(sck[1]))
