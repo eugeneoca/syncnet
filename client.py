@@ -83,7 +83,7 @@ class Client():
         return '.'.join(self.client_address.split('.')[:-1])
 
     def get_host(self):
-        return socket.gethostbyname(socket.getfqdn())
+        return socket.getfqdn()
 
     def client_log(self, message):
         print("["+self.name+"] "+message)
