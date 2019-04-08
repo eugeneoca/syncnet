@@ -93,7 +93,7 @@ class Server():
         self.port = port
 
     def get_host(self):
-        return socket.gethostbyname(socket.getfqdn())
+        return socket.getfqdn()
 
     def clear_log(self):
         os.system("clear")
