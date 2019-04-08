@@ -27,6 +27,7 @@ class Server():
         self.ttl = time()
 
         self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_sock.bind((self.host_address, self.port))
         self.server_sock.setblocking(False)
 

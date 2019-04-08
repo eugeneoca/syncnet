@@ -29,6 +29,7 @@ class Client():
     def run(self):
         try:
             self.client_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.client_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.client_sock.bind((self.client_address, self.client_port))
             self.client_sock.setblocking(False)
         except:
