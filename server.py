@@ -47,7 +47,7 @@ class Server():
     def server_listener(self):
         while True:
 
-            if (time()-self.ttl)>1:
+            if (time()-self.ttl)>5:
                 self.check_connection()
                 self.ttl = time()
 
@@ -72,14 +72,18 @@ class Server():
         local_clients = []
         for client in self.o_clients:
             self.server_sock.sendto("CHK".encode(), client)
-            try:
-                data, address = self.server_sock.recvfrom(1024)
-                if data.decode("UTF-8")=="LIV":
-                    local_clients.append(address)
-            except:
-                pass
+            for t in range(10):
+                # Ten waits of activity
+                try:
+                    data, address = self.server_sock.recvfrom(100)
+                    if data.decode("UTF-8")=="LIV":
+                        local_clients.append(address)
+                        break
+                except Exception as error:
+                    #print(error)
+                    pass
         
-        self.o_clients = local_clients
+        self.o_clients = local_clients.copy()
 
 
     def set_name(self, name):

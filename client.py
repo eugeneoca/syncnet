@@ -45,28 +45,23 @@ class Client():
         self.ttl = time()
         new_connection = True
         while True:
-
             if self.server_address=="":
                 self.server_address = self.detect_server(self.server_port)
 
             if new_connection==True and self.server_address is not "":
                 self.ttl = time()
                 new_connection = False
-            """
+
             try:
-                data, address = self.client_sock.recvfrom(1024)
+                data, address = self.client_sock.recvfrom(100)
                 if data.decode("UTF-8")=="CHK":
                     self.client_sock.sendto("LIV".encode(), address)
                     self.ttl = time()
             except Exception as error:
-                print(error)
-            
-            # TTL Check
-            if (time()-self.ttl)>10 and self.server_address is not "":
-                print(str(self.server_address) + " died. Waiting for new server...")
-                self.server_address=""
-                new_connection = True
-            """
+                if (time()-self.ttl)>10 and self.server_address is not "":
+                    print(str(self.server_address) + " died. Waiting for new server...")
+                    self.server_address=""
+                    new_connection = True
 
     def detect_server(self, port):
 
