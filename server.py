@@ -96,7 +96,7 @@ class Server():
         return socket.gethostbyname(socket.gethostname())
 
     def clear_log(self):
-        os.system("cls")
+        os.system("clear")
 
     def server_log(self, message):
         print("["+self.name+"] "+message)
