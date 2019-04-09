@@ -3,7 +3,7 @@ import threading
 import os
 from time import *
 
-SILENT_MODE = 1
+SILENT_MODE = 0
 if SILENT_MODE:
     def print(*args):
         pass
@@ -74,7 +74,7 @@ class Server():
                     self.o_clients.remove(address)
 
                 # Accept data from client (TSS => Transmitted State Status)
-                if data.decode("UTF-8").split(":")[0]=="TSS":
+                if data.decode("UTF-8")=="TSS":
                     exit(0)
             except:
                 pass
@@ -95,7 +95,7 @@ class Server():
                     #print(error)
                     pass
         
-        #self.o_clients = local_clients
+        self.o_clients = local_clients
 
 
     def set_name(self, name):
