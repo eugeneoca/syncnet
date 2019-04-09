@@ -3,7 +3,7 @@ import threading
 import os
 from time import *
 
-SILENT_MODE = 0
+SILENT_MODE = 1
 if SILENT_MODE:
     def print(*args):
         pass
@@ -44,7 +44,7 @@ class Server():
         s_Listener.start()
 
         while True:
-            #self.clear_log()
+            self.clear_log()
             self.server_log("Server running at "+self.host_address+":"+str(self.port))
             print("Active Clients: "+str(len(self.o_clients)))
             print("-------------------------------------------------------------------------")
