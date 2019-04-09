@@ -73,14 +73,14 @@ class Server():
         local_clients = []
         for client in self.o_clients:
             self.server_sock.sendto("CHK".encode(), client)
-            for t in range(20):
-                # Twenty waits of activity
+            for t in range(40):
+                # Fourthy waits of activity
                 try:
                     data, address = self.server_sock.recvfrom(100)
                     if data.decode("UTF-8")=="LIV":
                         local_clients.append(address)
                         break
-                except Exception as error:
+                except:
                     #print(error)
                     pass
         
@@ -101,7 +101,7 @@ class Server():
         return addr
 
     def clear_log(self):
-        os.system("clear")
+        os.system("cls")
 
     def server_log(self, message):
         print("["+self.name+"] "+message)

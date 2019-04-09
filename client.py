@@ -58,8 +58,8 @@ class Client():
                 if data.decode("UTF-8")=="CHK":
                     self.client_sock.sendto("LIV".encode(), address)
                     self.ttl = time()
-            except Exception as error:
-                if (time()-self.ttl)>10 and self.server_address is not "":
+            except:
+                if (time()-self.ttl)>20 and self.server_address is not "":
                     print(str(self.server_address) + " died. Waiting for new server...")
                     self.server_address=""
                     new_connection = True
