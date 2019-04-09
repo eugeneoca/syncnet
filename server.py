@@ -1,7 +1,15 @@
 import socket
 import threading
 import os
-from time import sleep, time
+from time import *
+
+SILENT_MODE = 0
+if SILENT_MODE:
+    def print(*args):
+        pass
+
+    def sleep(*args):
+        pass
 
 class Server():
 
@@ -36,7 +44,7 @@ class Server():
         s_Listener.start()
 
         while True:
-            self.clear_log()
+            #self.clear_log()
             self.server_log("Server running at "+self.host_address+":"+str(self.port))
             print("Active Clients: "+str(len(self.o_clients)))
             print("-------------------------------------------------------------------------")
@@ -56,15 +64,18 @@ class Server():
 
                 data, address = self.server_sock.recvfrom(1024)
 
-                # Register new client
+                # Register new client (REG => Register)
                 if data.decode("UTF-8")=="REG" and (address not in self.o_clients):
                     self.o_clients.append(address)
                     self.server_sock.sendto("ACK".encode(), address)
 
-                # Unregister client
+                # Unregister client (URG => Unregister)
                 if data.decode("UTF-8")=="URG" and (address in self.o_clients):
                     self.o_clients.remove(address)
 
+                # Accept data from client (TSS => Transmitted State Status)
+                if data.decode("UTF-8").split(":")[0]=="TSS":
+                    exit(0)
             except:
                 pass
 
@@ -84,7 +95,7 @@ class Server():
                     #print(error)
                     pass
         
-        self.o_clients = local_clients
+        #self.o_clients = local_clients
 
 
     def set_name(self, name):

@@ -3,6 +3,14 @@ import os
 from time import sleep, time
 import random
 
+SILENT_MODE = 0
+if SILENT_MODE:
+    def print(*args):
+        pass
+
+    def sleep(*args):
+        pass
+
 class Client():
 
     name = ""
