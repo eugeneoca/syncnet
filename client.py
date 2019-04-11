@@ -11,6 +11,7 @@ if SILENT_MODE:
     def sleep(*args):
         pass
 
+
 class Client():
 
     name = ""
@@ -26,7 +27,7 @@ class Client():
 
     ttl = 0
 
-    def __init__(self, name = "Client", port = 5000):
+    def __init__(self, name="Client", port=5000):
 
         self.server_port = port
         port = random.randint(port+1, 10000) # Set random port
@@ -54,22 +55,24 @@ class Client():
         self.ttl = time()
         new_connection = True
         while True:
-            if self.server_address=="":
+            if self.server_address == "":
                 self.server_address = self.detect_server(self.server_port)
 
-            if new_connection==True and self.server_address is not "":
+            if new_connection and self.server_address is not "":
                 self.ttl = time()
                 new_connection = False
 
             try:
                 data, address = self.client_sock.recvfrom(100)
-                if data.decode("UTF-8")=="CHK":
-                    self.client_sock.sendto("LIV".encode(), address)
+                if data.decode("UTF-8") == "CHK":
+                    # Assurance of five
+                    for _ in range(5):
+                        self.client_sock.sendto("LIV".encode(), address)
                     self.ttl = time()
             except:
-                if (time()-self.ttl)>20 and self.server_address is not "":
+                if (time()-self.ttl) > 10 and self.server_address is not "":
                     print(str(self.server_address) + " died. Waiting for new server...")
-                    self.server_address=""
+                    self.server_address = ""
                     new_connection = True
 
     def detect_server(self, port):
@@ -81,12 +84,12 @@ class Client():
             try:
                 self.client_sock.sendto("REG".encode(), (candidate_address, port))
                 data, sck = self.client_sock.recvfrom(1024)
-                if data.decode("UTF-8")=="ACK":
+                if data.decode("UTF-8") == "ACK":
                     print("Registered successfully on server "+sck[0]+":"+str(sck[1]))
                     return sck
             except:
                 pass
-        return "" # Return NULL String
+        return ""  # Return NULL String
 
     def get_base_address(self):
         return '.'.join(self.client_address.split('.')[:-1])

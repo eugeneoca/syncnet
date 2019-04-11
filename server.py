@@ -11,6 +11,7 @@ if SILENT_MODE:
     def sleep(*args):
         pass
 
+
 class Server():
 
     name = ""
@@ -21,7 +22,7 @@ class Server():
 
     ttl = 0
 
-    def __init__(self, name = "Network-Based Server", port=5000):
+    def __init__(self, name="Network-Based Server", port=5000):
         self.set_name(name)
         self.set_port(port)
         self.host_address = self.get_host()
@@ -51,12 +52,12 @@ class Server():
             print("ID\t|\tIP ADDRESS\t|\tPORT\t|\t DATABASE")
             for i,client in enumerate(self.o_clients):
                 print(str(i)+"\t|\t"+client[0]+"\t|\t"+str(client[1])+"\t|\t"+"{}")
-            sleep(1) # Update screen every second only
+            #sleep(1)  # Update screen every second only
 
     def server_listener(self):
         while True:
 
-            if (time()-self.ttl)>5:
+            if (time()-self.ttl) > 5:
                 self.check_connection()
                 self.ttl = time()
 
@@ -65,17 +66,19 @@ class Server():
                 data, address = self.server_sock.recvfrom(1024)
 
                 # Register new client (REG => Register)
-                if data.decode("UTF-8")=="REG" and (address not in self.o_clients):
+                if data.decode("UTF-8") == "REG" and (address not in self.o_clients):
                     self.o_clients.append(address)
                     self.server_sock.sendto("ACK".encode(), address)
 
                 # Unregister client (URG => Unregister)
-                if data.decode("UTF-8")=="URG" and (address in self.o_clients):
+                if data.decode("UTF-8") == "URG" and (address in self.o_clients):
                     self.o_clients.remove(address)
 
                 # Accept data from client (TSS => Transmitted State Status)
-                if data.decode("UTF-8")=="TSS":
-                    exit(0)
+                if data.decode("UTF-8").split(':')[0] == "TSS" and len(data.decode("UTF-8")) > 4:
+                    source = address[0]
+                    content = data.decode("UTF-8")[4:]  # 
+                    print(content)
             except:
                 pass
 
@@ -84,12 +87,13 @@ class Server():
         local_clients = []
         for client in self.o_clients:
             self.server_sock.sendto("CHK".encode(), client)
-            for t in range(40):
+            for _ in range(40):
                 # Fourthy waits of activity
                 try:
                     data, address = self.server_sock.recvfrom(100)
-                    if data.decode("UTF-8")=="LIV":
-                        local_clients.append(address)
+                    if data.decode("UTF-8") == "LIV":
+                        if address not in local_clients:
+                            local_clients.append(address)
                         break
                 except:
                     #print(error)
