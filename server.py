@@ -42,7 +42,8 @@ class Server():
         self.server_sock.bind((self.host_address, self.port))
         self.server_sock.setblocking(True)
 
-        s_Listener = threading.Thread(name="Server Core Thread", target=self.server_listener)
+        s_Listener = threading.Thread(
+            name="Server Core Thread", target=self.server_listener)
         s_Listener.daemon = True
         s_Listener.start()
 
@@ -52,7 +53,8 @@ class Server():
         self.stab_sock.bind((self.host_address, self.port-1))
         self.stab_sock.setblocking(True)
 
-        s_Stabilizer = threading.Thread(name="Connection Stabilizer Thread", target=self.connection_stabilizer)
+        s_Stabilizer = threading.Thread(
+            name="Connection Stabilizer Thread", target=self.connection_stabilizer)
         s_Stabilizer.daemon = True
         s_Stabilizer.start()
 
@@ -64,20 +66,6 @@ class Server():
                 pass
         except:
             print("Server terminated.")
-        """
-        #self.clear_log()
-        self.server_log("Server running at " +
-                        self.host_address+":"+str(self.port))
-        
-        
-        print("Active Clients: "+str(len(self.o_clients)))
-        print(
-            "-------------------------------------------------------------------------")
-        print("ID\t|\tIP ADDRESS\t|\tPORT\t|\t DATABASE")
-        for i, client in enumerate(self.o_clients):
-            print(str(i)+"\t|\t"+client[0] +
-                    "\t|\t"+str(client[1])+"\t|\t"+"{}")
-        """
 
     def server_listener(self):
         while True:
