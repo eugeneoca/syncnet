@@ -44,23 +44,35 @@ class Server():
         s_Listener.daemon = True
         s_Listener.start()
 
-        while True:
-            self.clear_log()
-            self.server_log("Server running at "+self.host_address+":"+str(self.port))
-            print("Active Clients: "+str(len(self.o_clients)))
-            print("-------------------------------------------------------------------------")
-            print("ID\t|\tIP ADDRESS\t|\tPORT\t|\t DATABASE")
-            for i,client in enumerate(self.o_clients):
-                print(str(i)+"\t|\t"+client[0]+"\t|\t"+str(client[1])+"\t|\t"+"{}")
-            #sleep(1)  # Update screen every second only
+        s_Stabilizer = threading.Thread(target=self.connection_stabilizer)
+        s_Stabilizer.daemon = True
+        s_Stabilizer.start()
+
+        self.server_log("Server running at " +
+                        self.host_address+":"+str(self.port))
+
+        try:
+            while True:
+                pass
+        except:
+            print("Server terminated.")
+        """
+        #self.clear_log()
+        self.server_log("Server running at " +
+                        self.host_address+":"+str(self.port))
+        
+        
+        print("Active Clients: "+str(len(self.o_clients)))
+        print(
+            "-------------------------------------------------------------------------")
+        print("ID\t|\tIP ADDRESS\t|\tPORT\t|\t DATABASE")
+        for i, client in enumerate(self.o_clients):
+            print(str(i)+"\t|\t"+client[0] +
+                    "\t|\t"+str(client[1])+"\t|\t"+"{}")
+        """
 
     def server_listener(self):
         while True:
-
-            if (time()-self.ttl) > 5:
-                self.check_connection()
-                self.ttl = time()
-
             try:
 
                 data, address = self.server_sock.recvfrom(1024)
@@ -77,30 +89,33 @@ class Server():
                 # Accept data from client (TSS => Transmitted State Status)
                 if data.decode("UTF-8").split(':')[0] == "TSS" and len(data.decode("UTF-8")) > 4:
                     source = address[0]
-                    content = data.decode("UTF-8")[4:]  # 
+                    content = data.decode("UTF-8")[4:]  #
                     print(content)
             except:
                 pass
 
-    def check_connection(self):
+    def connection_stabilizer(self):
+        pass
+        """
         # Check connection and remake client list
         local_clients = []
         for client in self.o_clients:
             self.server_sock.sendto("CHK".encode(), client)
-            for _ in range(40):
-                # Fourthy waits of activity
+            for _ in range(1):
+                # Twenty waits of activity
                 try:
-                    data, address = self.server_sock.recvfrom(100)
+                    data, address = self.server_sock.recvfrom(1024)
                     if data.decode("UTF-8") == "LIV":
                         if address not in local_clients:
                             local_clients.append(address)
-                        break
+                        else:
+                            continue
                 except:
-                    #print(error)
                     pass
-        
+
         self.o_clients = local_clients
 
+        """
 
     def set_name(self, name):
         self.name = name
@@ -120,6 +135,7 @@ class Server():
 
     def server_log(self, message):
         print("["+self.name+"] "+message)
+
 
 if __name__ == "__main__":
     server = Server("Syncnet Server", 5000)
