@@ -67,12 +67,10 @@ class Client():
             try:
                 data, address = self.client_sock.recvfrom(1024)
                 if data.decode("UTF-8") == "CHK":
-                    # Assurance of five
-                    for _ in range(1):
-                        self.client_sock.sendto("LIV".encode(), address)
+                    self.client_sock.sendto("LIV".encode(), address)
                     self.ttl = time()
             except:
-                if (time()-self.ttl) > 5 and self.server_address is not "":
+                if (time()-self.ttl) > 10 and self.server_address is not "":
                     print(str(self.server_address) +
                           " died. Waiting for new server...")
                     self.server_address = ""

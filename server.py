@@ -16,7 +16,8 @@ class Server():
 
     name = ""
     host_address = ""
-    client_listener_sock = ""
+    server_sock = ""
+    stab_sock = ""
     port = 2000
     o_clients = []
 
@@ -35,16 +36,23 @@ class Server():
         # Run Dead Client Listener Thread
         self.ttl = time()
 
+        # SERVER SOCKET
         self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_sock.bind((self.host_address, self.port))
-        self.server_sock.setblocking(False)
+        self.server_sock.setblocking(True)
 
-        s_Listener = threading.Thread(target=self.server_listener)
+        s_Listener = threading.Thread(name="Server Core Thread", target=self.server_listener)
         s_Listener.daemon = True
         s_Listener.start()
 
-        s_Stabilizer = threading.Thread(target=self.connection_stabilizer)
+        # STABILIZER SOCKET
+        self.stab_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.stab_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.stab_sock.bind((self.host_address, self.port-1))
+        self.stab_sock.setblocking(True)
+
+        s_Stabilizer = threading.Thread(name="Connection Stabilizer Thread", target=self.connection_stabilizer)
         s_Stabilizer.daemon = True
         s_Stabilizer.start()
 
@@ -95,27 +103,28 @@ class Server():
                 pass
 
     def connection_stabilizer(self):
-        pass
-        """
-        # Check connection and remake client list
-        local_clients = []
-        for client in self.o_clients:
-            self.server_sock.sendto("CHK".encode(), client)
-            for _ in range(1):
-                # Twenty waits of activity
-                try:
-                    data, address = self.server_sock.recvfrom(1024)
-                    if data.decode("UTF-8") == "LIV":
-                        if address not in local_clients:
-                            local_clients.append(address)
-                        else:
-                            continue
-                except:
-                    pass
+        while True:
+            local_clients = []
+            for client in self.o_clients:
+                attempt = 0
+                alive = False
 
-        self.o_clients = local_clients
+                while attempt < 5 and alive is False:
+                    attempt += 1
+                    self.stab_sock.sendto("CHK".encode(), client)
+                    try:
+                        data, address = self.stab_sock.recvfrom(1024)
+                        if data.decode("UTF-8") == "LIV":
+                            if address not in local_clients:
+                                local_clients.append(address)
+                                alive = True
+                            else:
+                                continue
+                    except:
+                        pass
 
-        """
+            self.o_clients = local_clients
+            sleep(5)
 
     def set_name(self, name):
         self.name = name
