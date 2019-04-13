@@ -73,7 +73,10 @@ class Server():
 
                 # Register new client (REG => Register)
                 if data.decode("UTF-8") == "REG" and (address not in self.o_clients):
-                    self.o_clients.append(address)
+                    address_store = (address[0], address[1]-1) # Port offset -1
+                    print(address_store, " has been registered.")
+                    self.o_clients.append(address_store)
+                    print("Replying to ", address)
                     self.server_sock.sendto("ACK".encode(), address)
 
                 # Unregister client (URG => Unregister)

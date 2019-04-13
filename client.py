@@ -37,11 +37,18 @@ class Client():
 
     def run(self):
         try:
+            # Client Socket
             self.client_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.client_sock.setsockopt(
                 socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.client_sock.bind((self.client_address, self.client_port))
-            self.client_sock.setblocking(False)
+            self.client_sock.setblocking(True)
+
+            self.lookup_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.lookup_sock.setsockopt(
+                socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.lookup_sock.bind((self.client_address, self.client_port+1))
+            self.lookup_sock.setblocking(False)
         except:
             self.client_log('Existing server or client using the socket.')
             exit(0)
@@ -83,9 +90,9 @@ class Client():
             candidate_address = base_address+"."+str(last_octet)
 
             try:
-                self.client_sock.sendto(
+                self.lookup_sock.sendto(
                     "REG".encode(), (candidate_address, port))
-                data, sck = self.client_sock.recvfrom(1024)
+                data, sck = self.lookup_sock.recvfrom(1024)
                 if data.decode("UTF-8") == "ACK":
                     print("Registered successfully on server " +
                           sck[0]+":"+str(sck[1]))
