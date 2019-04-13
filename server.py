@@ -42,8 +42,7 @@ class Server():
         self.server_sock.bind((self.host_address, self.port))
         self.server_sock.setblocking(True)
 
-        s_Listener = threading.Thread(
-            name="Server Core Thread", target=self.server_listener)
+        s_Listener = threading.Thread(name="Server Core Thread", target=self.server_listener)
         s_Listener.daemon = True
         s_Listener.start()
 
@@ -53,8 +52,7 @@ class Server():
         self.stab_sock.bind((self.host_address, self.port-1))
         self.stab_sock.setblocking(True)
 
-        s_Stabilizer = threading.Thread(
-            name="Connection Stabilizer Thread", target=self.connection_stabilizer)
+        s_Stabilizer = threading.Thread(name="Connection Stabilizer Thread", target=self.connection_stabilizer)
         s_Stabilizer.daemon = True
         s_Stabilizer.start()
 
