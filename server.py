@@ -1,6 +1,7 @@
 import socket
 import threading
 import os
+import json
 from time import *
 
 SILENT_MODE = 0
@@ -20,12 +21,14 @@ class Server():
     stab_sock = ""
     port = 2000
     o_clients = []
+    database = []
 
     ttl = 0
 
-    def __init__(self, name="Network-Based Server", port=5000):
+    def __init__(self, name="Network-Based Server", port=5000, data_template="0"):
         self.set_name(name)
         self.set_port(port)
+        self.database = [float(y) for y in list(data_template)]
         self.host_address = self.get_host()
 
     def run(self):
@@ -75,7 +78,9 @@ class Server():
                 if data.decode("UTF-8") == "REG" and (address not in self.o_clients):
                     address_store = (address[0], address[1]-1) # Port offset -1
                     self.o_clients.append(address_store)
-                    self.server_sock.sendto("ACK".encode(), address)
+                    self.server_sock.sendto("ACK".encode(), address)  # ACK => Acknowledge
+                    self.server_sock.sendto(("TSS:"+(",".join(map(str,self.database)))).encode(), address_store)
+
 
                 # Unregister client (URG => Unregister)
                 if data.decode("UTF-8") == "URG" and (address in self.o_clients):
@@ -83,11 +88,13 @@ class Server():
 
                 # Accept data from client (TSS => Transmitted State Status)
                 if data.decode("UTF-8").split(':')[0] == "TSS" and len(data.decode("UTF-8")) > 4:
-                    source = address[0]
-                    content = data.decode("UTF-8")[4:]  #
-                    print(content)
-            except:
-                pass
+                    content = data.decode("UTF-8")[4:]  # 
+                    self.database = [float(y) for y in content.split(",")]
+                    for client in self.o_clients:
+                        self.server_sock.sendto(("TSS:"+(",".join(map(str,self.database)))).encode(), client)
+
+            except Exception as error:
+                print(error)
 
     def connection_stabilizer(self):
         while True:
@@ -98,8 +105,8 @@ class Server():
 
                 while attempt < 5 and alive is False:
                     attempt += 1
-                    self.stab_sock.sendto("CHK".encode(), client)
                     try:
+                        self.stab_sock.sendto("CHK".encode(), client)
                         data, address = self.stab_sock.recvfrom(1024)
                         if data.decode("UTF-8") == "LIV":
                             if address not in local_clients:
@@ -134,5 +141,5 @@ class Server():
 
 
 if __name__ == "__main__":
-    server = Server("Syncnet Server", 5000)
+    server = Server("Syncnet Server", 5000, data_template="00000")
     server.run()

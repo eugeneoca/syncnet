@@ -26,6 +26,7 @@ class Client():
     finder_sock = ""
 
     ttl = 0
+    database = ""
 
     def __init__(self, name="Client", port=5000):
 
@@ -42,7 +43,7 @@ class Client():
             self.client_sock.setsockopt(
                 socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.client_sock.bind((self.client_address, self.client_port))
-            self.client_sock.setblocking(True)
+            self.client_sock.setblocking(False)
 
             self.lookup_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.lookup_sock.setsockopt(
@@ -76,6 +77,12 @@ class Client():
                 if data.decode("UTF-8") == "CHK":
                     self.client_sock.sendto("LIV".encode(), address)
                     self.ttl = time()
+
+                # Accept data from client (TSS => Transmitted State Status)
+                if data.decode("UTF-8").split(':')[0] == "TSS" and len(data.decode("UTF-8")) > 4:
+                    content = data.decode("UTF-8")[4:]  # Structured data
+                    self.database = [float(y) for y in content.split(",")]
+                    print(self.database, " update from ", address)
             except:
                 if (time()-self.ttl) > 10 and self.server_address is not "":
                     print(str(self.server_address) +
